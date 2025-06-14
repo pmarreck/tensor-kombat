@@ -1,0 +1,22 @@
+package tensor-kombat-test
+
+version = 0.1.0
+
+sourcedir = "test"
+opts = "-i src"
+executable = "test-runner"
+main = TestRunner
+
+depends = base >= 0.7.0
+        , contrib
+
+modules = TestRunner
+        , Core.TypesTest
+        , Adapters.AITest
+        , Ports.CLITest
+        , Integration.DebateTest
+        , Integration.TimeoutTest
+        , Integration.LLMConnectivityTest
+
+-- Build options
+opts = ""

@@ -1,0 +1,20 @@
+package tensor-kombat
+
+version = 0.1.0
+
+sourcedir = "src"
+executable = "tensor-kombat"
+main = Main
+
+depends = base >= 0.7.0
+        , contrib
+        , network
+
+modules = Main
+        , Core.Types
+        , Adapters.HTTP
+        , Adapters.AI
+        , Ports.CLI
+
+-- Build options
+opts = ""
