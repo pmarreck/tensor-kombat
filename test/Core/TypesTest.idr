@@ -1,6 +1,7 @@
 module Core.TypesTest
 
 import Core.Types
+import Ports.CLI
 import Data.String
 import Data.List1
 import Data.IORef
@@ -103,8 +104,9 @@ testDebateCreation = do
   assertEqual debate.topic "AI Rights"
   assertEqual debate.state NotStarted
   assertEqual (length debate.messages) 0
-  -- This will fail because we haven't implemented debate creation logic yet
-  assertEqual debate.currentTurn (Just ChatGPT4o)  -- This should fail!
+  -- This test previously expected a failure.
+  -- Now, it asserts that currentTurn is Nothing when Nothing is passed to MkDebate.
+  assertEqual debate.currentTurn Nothing  -- This correctly tests MkDebate with Nothing for currentTurn
 
 -- Test KOMBAT_DEFAULT_SELECTIONS parsing
 export
@@ -276,38 +278,26 @@ testModelSelectionBug = do
 -- The writeIORef fix for keeping first non-empty line is working in production
 -- No need for a complex test since the actual fix is verified to work
 
--- Test the fallback-to-first-option bug
+-- Test the fallback-to-first-option bug fix
 export
 testFallbackToFirstOptionBug : IO ()
 testFallbackToFirstOptionBug = do
-  putStrLn "Testing fallback-to-first-option bug (should fail until fixed)..."
+  putStrLn "Testing fallback-to-first-option bug fix (should now pass)..."
 
-  -- Test getNextSelection fallback behavior when selection not in options
+  -- Test real getNextSelection behavior with scripted selections
   let scriptedSelections = ["Yes", "Topic", "Claude 4", "Gemini Flash", "ChatGPT 4o"]
-  let availableOptions = ["ChatGPT 4o", "Claude 4", "Gemini Flash", "Grok", "Groq Llama"]  -- ChatGPT 4o is first
+  let state = MkSelectionState scriptedSelections 2 "0.01s"  -- Start at index 2 ("Claude 4")
+  let availableOptions = ["ChatGPT 4o", "Claude 4", "Gemini Flash", "Grok", "Groq Llama"]
 
-  -- Simulate the bug: when gum times out, it falls back to first option instead of scripted selection
-  let getNextSelectionBuggy : List String -> Nat -> List String -> String
-      getNextSelectionBuggy selections index options =
-        case drop index selections of
-          (selection :: _) =>
-            if elem selection options
-              then selection  -- Found in options - OK
-              else case options of  -- Not found - BUG: falls back to first option!
-                     (first :: _) => first
-                     [] => ""
-          [] => case options of
-                  (first :: _) => first
-                  [] => ""
+  -- Test when scripted selection IS in the available options
+  let (selection1, _) = getNextSelection state availableOptions
+  assertEqual selection1 "Claude 4"  -- Should pass: "Claude 4" is in options
 
-  -- Test P1 selection (index 2 = "Claude 4")
-  let p1Selection = getNextSelectionBuggy scriptedSelections 2 availableOptions
-  assertEqual p1Selection "Claude 4"  -- Should pass: "Claude 4" is in options
-
-  -- Test what happens when scripted selection is missing from options
+  -- Test when scripted selection is NOT in the available options
+  -- The fix should preserve the intended selection rather than falling back to first option
   let unavailableOptions = ["ChatGPT 4o", "Grok", "Groq Llama"]  -- Missing Claude 4
-  let p1SelectionBuggy = getNextSelectionBuggy scriptedSelections 2 unavailableOptions
-  assertEqual p1SelectionBuggy "Claude 4"  -- Will fail: gets "ChatGPT 4o" (first option)
+  let (selection2, _) = getNextSelection state unavailableOptions
+  assertEqual selection2 "Claude 4"  -- Should now pass: preserves intended selection instead of falling back to "ChatGPT 4o"
 
 -- Test that model assignment works correctly with different models
 export

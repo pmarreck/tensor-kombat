@@ -12,9 +12,12 @@ depends = base >= 0.7.0
 
 modules = Main
         , Core.Types
+        , Core.Config
         , Adapters.HTTP
         , Adapters.AI
+        , Application.Judging
         , Ports.CLI
+        , Ports.TUI
 
 -- Build options
 opts = ""

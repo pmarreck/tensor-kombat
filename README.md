@@ -8,7 +8,7 @@ Tensor-Kombat is a sophisticated AI debate platform that orchestrates intelligen
 
 ### 🎭 Epic AI Debates
 
-- **5 AI Models Supported**: ChatGPT-4, Claude 4, Gemini Pro, Grok, Groq Llama
+- **6 AI Services Supported**: OpenAI, Anthropic, Google, X.ai, Groq, OpenRouter (unified access to multiple models)
 - **Intelligent Side Assignment**: Judge AI fairly assigns Pro/Con positions
 - **Turn-Based Conversations**: Structured debate flow with context awareness
 - **Length Management**: Configurable turn limits with 90% warning system
@@ -76,6 +76,7 @@ export ANTHROPIC_API_KEY="your-anthropic-key"     # For Claude 4
 export GOOGLE_GEMINI_API_KEY="your-gemini-key"    # For Gemini Pro
 export GROK_API_KEY="your-grok-key"               # For Grok
 export GROQ_API_KEY="your-groq-key"               # For Groq Llama
+export OPENROUTER_API_KEY="your-openrouter-key"   # For OpenRouter (unified access to multiple models)
 ```
 
 ## 🛠️ Development
@@ -123,13 +124,14 @@ Every feature has comprehensive test coverage with both unit and integration tes
 
 ## 🤖 Supported AI Models
 
-| Service       | Model      | API Endpoint                                | Status   |
-| ------------- | ---------- | ------------------------------------------- | -------- |
-| **OpenAI**    | GPT-4      | `/v1/chat/completions`                      | ✅ Ready |
-| **Anthropic** | Claude 4   | `/v1/messages`                              | ✅ Ready |
-| **Google**    | Gemini Pro | `/v1beta/models/gemini-pro:generateContent` | ✅ Ready |
-| **X.ai**      | Grok       | `/v1/chat/completions`                      | ✅ Ready |
-| **Groq**      | Llama 3    | `/openai/v1/chat/completions`               | ✅ Ready |
+| Service        | Model      | API Endpoint                                | Status   |
+| -------------- | ---------- | ------------------------------------------- | -------- |
+| **OpenAI**     | GPT-4      | `/v1/chat/completions`                      | ✅ Ready |
+| **Anthropic**  | Claude 4   | `/v1/messages`                              | ✅ Ready |
+| **Google**     | Gemini Pro | `/v1beta/models/gemini-pro:generateContent` | ✅ Ready |
+| **X.ai**       | Grok       | `/v1/chat/completions`                      | ✅ Ready |
+| **Groq**       | Llama 3    | `/openai/v1/chat/completions`               | ✅ Ready |
+| **OpenRouter** | Multiple   | `/api/v1/chat/completions`                  | ✅ Ready |
 
 All models support the same debate interface with model-specific prompt formatting and response parsing.
 

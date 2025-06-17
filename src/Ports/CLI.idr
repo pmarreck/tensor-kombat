@@ -2,6 +2,7 @@ module Ports.CLI
 
 import Adapters.HTTP
 import Adapters.AI
+import Application.Judging
 import Core.Types
 import System
 import System.File
@@ -111,132 +112,7 @@ generateDebatePrompt topic side context =
       instructions = "Make your case in 2-3 sharp paragraphs maximum. Be direct, compelling, and decisive. No pleasantries or thank-yous. Attack the opposing position and defend yours with conviction. This is competitive debate, not polite conversation."
   in basePrompt ++ rolePrompt ++ contextPrompt ++ instructions
 
-public export
-record ScoreCriteria where
-  constructor MkCriteria
-  relevance : Double
-  argumentQuality : Double
-  evidenceQuality : Double
-  coherence : Double
-
-public export
-record DebateScore where
-  constructor MkScore
-  participant : DebateParticipant
-  criteria : ScoreCriteria
-  totalScore : Double
-  rank : Nat
-
--- Format a double to 1 decimal place
-public export
-formatScore : Double -> String
-formatScore score =
-  let multiplied = score * 10.0
-      rounded = cast {to=Integer} (multiplied + 0.5)
-      wholePart = rounded `div` 10
-      decimalPart = rounded `mod` 10
-  in show wholePart ++ "." ++ show decimalPart
-
-public export
-Show DebateScore where
-  show score = "🤖 " ++ show score.participant.model ++ " (" ++ show score.participant.side ++ ") - " ++ score.participant.name ++ "\n" ++
-               "   📊 Total Score: " ++ formatScore score.totalScore ++ "/40.0\n" ++
-               "   📈 Breakdown: Relevance(" ++ formatScore score.criteria.relevance ++ ") Quality(" ++ formatScore score.criteria.argumentQuality ++ ") Evidence(" ++ formatScore score.criteria.evidenceQuality ++ ") Coherence(" ++ formatScore score.criteria.coherence ++ ")"
-
-public export
-calculateTotalScore : ScoreCriteria -> Double
-calculateTotalScore criteria =
-  let weighted = criteria.relevance * 0.3 + criteria.argumentQuality * 0.3 +
-                 criteria.evidenceQuality * 0.2 + criteria.coherence * 0.2
-  in weighted * 4
-
--- Generate dramatic winner declaration using the judge AI
-public export
-generateDramaticDeclaration : AIModel -> DebateParticipant -> DebateParticipant -> String -> IO String
-generateDramaticDeclaration judge winner loser topic = do
-  let winnerName = show winner.model ++ " (" ++ show winner.side ++ ")"
-  let loserName = show loser.model ++ " (" ++ show loser.side ++ ")"
-
-  let declarationPrompt = "You are a wrestling announcer/Mortal Kombat narrator announcing the winner of a debate. " ++
-                         "The topic was: " ++ topic ++ "\n" ++
-                         "WINNER: " ++ winnerName ++ "\n" ++
-                         "LOSER: " ++ loserName ++ "\n\n" ++
-                         "Generate a dramatic, over-the-top winner announcement in the style of a wrestling announcer or Mortal Kombat fatality. " ++
-                         "Use hyperbolic language, ALL CAPS for emphasis, and creative metaphors. " ++
-                         "Make it entertaining and tailored to this specific debate topic. " ++
-                         "Include emojis and dramatic formatting. Keep it to 2-3 sentences maximum."
-
-  result <- generateResponse judge declarationPrompt
-  case result of
-    Left _ => pure ("🏆 " ++ winnerName ++ " emerges victorious in this intellectual battle!")
-    Right response => pure response.content
-
--- Determine winner from scores and generate declaration
-public export
-declareWinner : AIModel -> String -> List DebateScore -> IO String
-declareWinner judge topic scores =
-  case scores of
-    [score1, score2] => do
-      putStrLn "\n🎙️ Judge is preparing the dramatic winner announcement..."
-      if score1.totalScore > score2.totalScore
-        then do
-          declaration <- generateDramaticDeclaration judge score1.participant score2.participant topic
-          pure ("\n🚨 THE JUDGE HAS SPOKEN! 🚨\n" ++
-                "═══════════════════════════════════════════════\n" ++
-                declaration ++ "\n" ++
-                "═══════════════════════════════════════════════\n")
-        else do
-          declaration <- generateDramaticDeclaration judge score2.participant score1.participant topic
-          pure ("\n🚨 THE JUDGE HAS SPOKEN! 🚨\n" ++
-                "═══════════════════════════════════════════════\n" ++
-                declaration ++ "\n" ++
-                "═══════════════════════════════════════════════\n")
-    _ => pure "🏆 The debate concludes with honor to all participants!"
-
-scoreDebate : DebateSession -> AIModel -> IO (Either APIError (List DebateScore))
-scoreDebate session judge = do
-  -- Generate scoring prompt for the judge
-  let debateContent = concat (map (\turn => "[" ++ show turn.speaker ++ "]: " ++ turn.message ++ "\n\n") session.turns)
-  let p1Name = show session.participant1.model ++ " (" ++ show session.participant1.side ++ ")"
-  let p2Name = show session.participant2.model ++ " (" ++ show session.participant2.side ++ ")"
-
-  let scoringPrompt = "You are judging this debate on the topic: " ++ session.topic ++ "\n\n" ++
-                     "DEBATE TRANSCRIPT:\n" ++ debateContent ++ "\n" ++
-                     "JUDGE THIS DEBATE by scoring each participant on these criteria (0-10 scale):\n" ++
-                     "1. RELEVANCE: How well arguments address the topic\n" ++
-                     "2. ARGUMENT QUALITY: Strength and persuasiveness of reasoning\n" ++
-                     "3. EVIDENCE QUALITY: Use of logical examples and reasoning\n" ++
-                     "4. COHERENCE: Clarity and logical flow\n\n" ++
-                     "Respond with scores for each participant in this format:\n" ++
-                     "PARTICIPANT1 (" ++ p1Name ++ "): R=X.X Q=X.X E=X.X C=X.X\n" ++
-                     "PARTICIPANT2 (" ++ p2Name ++ "): R=X.X Q=X.X E=X.X C=X.X\n" ++
-                     "Where R=Relevance, Q=Quality, E=Evidence, C=Coherence (use scores like 7.5, 8.0, etc.)"
-
-  putStrLn ("🤖 " ++ show judge ++ " is now judging the debate...")
-
-  -- Get judgment from AI
-  result <- generateResponse judge scoringPrompt
-  case result of
-    Left err => pure (Left err)
-    Right response => do
-      putStrLn ("📝 Judge response received:")
-      putStrLn response.content
-      -- Generate scores based on actual content length and complexity
-      let contentLength1 = sum (map (length . message) (filter (\t => t.speaker == session.participant1.model) session.turns))
-      let contentLength2 = sum (map (length . message) (filter (\t => t.speaker == session.participant2.model) session.turns))
-      let topicLength = length session.topic
-
-      -- Base scores with variation based on content
-      let baseScore1 = 6.5 + (cast {to=Double} ((cast {to=Integer} contentLength1) `mod` 20)) * 0.15
-      let baseScore2 = 6.0 + (cast {to=Double} ((cast {to=Integer} contentLength2) `mod` 25)) * 0.16
-      let topicFactor = (cast {to=Double} ((cast {to=Integer} topicLength) `mod` 10)) * 0.1
-
-      let criteria1 = MkCriteria (baseScore1 + topicFactor) (baseScore1 + 0.3) (baseScore1 - 0.2) (baseScore1 + 0.4)
-      let criteria2 = MkCriteria (baseScore2 + topicFactor) (baseScore2 + 0.5) (baseScore2 + 0.1) (baseScore2 + 0.2)
-
-      let score1 = MkScore session.participant1 criteria1 (calculateTotalScore criteria1) 1
-      let score2 = MkScore session.participant2 criteria2 (calculateTotalScore criteria2) 2
-      pure (Right [score1, score2])
+-- Scoring and winner declaration logic moved to Application.Judging
 
 -- Random generation interface
 interface RandomGen where
@@ -403,9 +279,10 @@ getNextSelection state options =
     (selection :: _) =>
       if elem selection options
         then (selection, { currentIndex := state.currentIndex + 1 } state)
-        else case options of
-               (first :: _) => (first, { currentIndex := state.currentIndex + 1 } state)
-               [] => ("", { currentIndex := state.currentIndex + 1 } state)
+        else -- Selection not found in options - this is the bug!
+             -- Instead of falling back to first option, we should preserve the intended selection
+             -- and let the TUI wrapper handle the validation
+             (selection, { currentIndex := state.currentIndex + 1 } state)
     [] => case options of
             (first :: _) => (first, state)
             [] => ("", state)
@@ -536,11 +413,15 @@ UserInput where
 -- Glow helpers for markdown rendering
 glowMarkdown : String -> IO ()
 glowMarkdown content = do
-  Right () <- writeFile "/tmp/tensor_kombat_content.md" content
+  -- Use current time in nanoseconds for unique filename
+  time <- clockTime UTC
+  let uniqueId = show (nanoseconds time)
+  let markdownFile = "/tmp/tensor_kombat_content_" ++ uniqueId ++ ".md"
+  Right () <- writeFile markdownFile content
     | Left err => putStrLn ("Error writing markdown: " ++ show err)
 
-  ignore $ system "glow /tmp/tensor_kombat_content.md"
-  ignore $ system "rm -f /tmp/tensor_kombat_content.md"
+  ignore $ System.system ("glow " ++ markdownFile)
+  ignore $ System.system ("rm -f " ++ markdownFile)
 
 -- CLI interface functions with state management
 public export
@@ -551,30 +432,38 @@ selectDebateTopicWithState state = do
   putStrLn ""
 
   let suggestions = [
+    -- Technology & Society
     "Should social media platforms prioritize free speech over content moderation?",
-    "Will AI eventually surpass human intelligence in most domains?",
+    "Should artificial intelligence development be heavily regulated by government?", 
     "Should nuclear energy be prioritized over renewable energy sources?",
-    "Should genetic engineering of humans be permitted for enhancement purposes?",
-    "Should cryptocurrency replace traditional financial systems?",
-    "Should companies mandate in-office work over remote work?",
-    "Does Palestine have the right to armed resistance against Israeli occupation?",
+    "Should genetic engineering be permitted for human enhancement purposes?",
+    "Should cryptocurrency replace traditional banking systems?",
+    "Should companies be required to allow permanent remote work options?",
+    
+    -- Politics & Policy  
+    "Should Palestine have the right to armed resistance against occupation?",
     "Should Donald Trump be permanently banned from all social media platforms?",
-    "Is Elon Musk's acquisition of Twitter beneficial for free speech?",
-    "Should civilians have the right to own assault weapons?",
-    "Should hate speech be criminally prosecuted or protected as free expression?",
-    "Is cancel culture a legitimate form of social accountability or mob justice?",
-    "Should transgender athletes compete in sports matching their gender identity?",
-    "Is abortion a fundamental human right or murder of an unborn child?",
+    "Should hate speech be criminally prosecuted rather than protected speech?",
+    "Should transgender athletes be allowed to compete in their gender identity category?",
+    "Should abortion access be guaranteed as a fundamental human right?",
     "Should Western countries accept unlimited refugees regardless of capacity?",
-    "Is climate change activism justified in breaking laws through civil disobedience?",
-    "Should tech billionaires be taxed out of existence for societal good?",
-    "Is traditional masculinity toxic or essential for society?",
-    "Should parents have the right to refuse vaccination for their children?",
-    "Is cultural appropriation harmful theft or natural cultural exchange?",
-    "Should reparations be paid to descendants of slavery in America?",
-    "Is DEI (Diversity, Equity, Inclusion) progressive advancement or reverse racism?",
-    "Should universities maintain affirmative action in admissions?",
-    "Is polyamory a valid relationship structure or destructive to traditional families?",
+    "Should civil disobedience be legally protected for climate activism?",
+    
+    -- Economics & Justice
+    "Should billionaires face wealth caps through progressive taxation?",
+    "Should reparations be paid to descendants of American slavery?", 
+    "Should DEI programs be mandated in all major corporations?",
+    "Should universities be required to maintain race-conscious admissions?",
+    "Should parents have the right to refuse mandatory childhood vaccinations?",
+    
+    -- Social & Cultural
+    "Should cultural appropriation be legally restricted and penalized?",
+    "Should traditional gender roles be actively promoted in education?",
+    "Should polyamorous relationships receive the same legal recognition as marriage?",
+    "Should social media usage be restricted for users under 16?",
+    "Should violent video games be banned to reduce societal aggression?",
+    "Should religious symbols be prohibited in all public institutions?",
+    
     "Custom Topic (enter your own)"
   ]
 
@@ -595,16 +484,17 @@ selectDebateTopicWithState state = do
     Just selectedTopic =>
       -- Check if it's a stock topic or treat as custom
       if elem selectedTopic suggestions
-        then pure (Just selectedTopic, newState)
+        then do
+          putStrLn ("✓ Topic: " ++ selectedTopic)  -- Echo selection
+          pure (Just selectedTopic, newState)
         else
           -- Treat as custom topic
           if isValidCLITopic selectedTopic
             then do
-              putStrLn ("📝 Using custom topic: " ++ selectedTopic)
+              putStrLn ("✓ Custom topic: " ++ selectedTopic)  -- Echo selection
               pure (Just selectedTopic, newState)
             else do
-              putStrLn ("❌ Invalid custom topic: " ++ selectedTopic)
-              putStrLn "   Topic must be 3-200 characters."
+              putStrLn "❌ Invalid topic. Topic must be 3-200 characters."
               pure (Nothing, newState)
 
 -- Legacy interface for backward compatibility
@@ -623,22 +513,24 @@ selectAIModelsWithState state = do
   putStrLn "====================="
   putStrLn ""
 
-  -- Select first participant
-  putStrLn "Select first debate participant:"
-  (participant1Choice, state1) <- gumChooseWithState state getModelOptions "First participant:"
+  -- Select Pro participant
+  putStrLn "Select who will be arguing for the Pro position:"
+  (participant1Choice, state1) <- gumChooseWithState state getModelOptions "Pro participant:"
 
   case participant1Choice of
     Nothing => pure (Nothing, state1)
     Just p1Name => do
       debugPrint ("🐛 DEBUG: P1 selected: " ++ p1Name)
+      putStrLn ("✓ Pro: " ++ p1Name)  -- Echo selection
       -- Select second participant
-      putStrLn "\nSelect second debate participant:"
-      (participant2Choice, state2) <- gumChooseWithState state1 getModelOptions "Second participant:"
+      putStrLn "\nSelect who will be arguing for the Con position:"
+      (participant2Choice, state2) <- gumChooseWithState state1 getModelOptions "Con participant:"
 
       case participant2Choice of
         Nothing => pure (Nothing, state2)
         Just p2Name => do
           debugPrint ("🐛 DEBUG: P2 selected: " ++ p2Name)
+          putStrLn ("✓ Con: " ++ p2Name)  -- Echo selection
           -- Select judge
           putStrLn "\nSelect debate judge:"
           (judgeChoice, state3) <- gumChooseWithState state2 getModelOptions "Judge:"
@@ -647,6 +539,7 @@ selectAIModelsWithState state = do
             Nothing => pure (Nothing, state3)
             Just judgeName => do
               debugPrint ("🐛 DEBUG: Judge selected: " ++ judgeName)
+              putStrLn ("✓ Judge: " ++ judgeName)  -- Echo selection
               debugPrint ("🐛 DEBUG: About to process: P1=" ++ p1Name ++ ", P2=" ++ p2Name ++ ", Judge=" ++ judgeName)
               case processModelSelection getModelOptions p1Name p2Name judgeName of
                 Nothing => do
@@ -699,9 +592,11 @@ configureDebateWithInput = do
       warningStr <- getUserInput "Warning threshold 0.0-1.0 (default: 0.8)"
       let warningThreshold = case warningStr of
                                Nothing => 0.8
-                               Just str => case parseDouble str of
-                                            Just d => d
-                                            Nothing => 0.8
+                               Just str => 
+                                 let cleanStr = if isPrefixOf "." str then "0" ++ str else str
+                                 in case parseDouble cleanStr of
+                                      Just d => if d >= 0.0 && d <= 1.0 then d else 0.8
+                                      Nothing => 0.8
 
       pure (Just (MkDebateConfig maxRounds warningThreshold))
 
@@ -720,10 +615,24 @@ normalizeText text =
   where
     normalizeChars : List Char -> List Char -> List Char
     normalizeChars [] acc = acc
+    -- Handle paragraph breaks (double newlines)
     normalizeChars ('\n' :: '\n' :: rest) acc =
       normalizeChars rest ('\n' :: '\n' :: acc)
+    -- Handle single newlines (replace with space)
     normalizeChars ('\n' :: rest) acc =
       normalizeChars rest (' ' :: acc)
+    -- Handle carriage returns (Windows/mixed line endings)
+    normalizeChars ('\r' :: '\n' :: rest) acc =
+      normalizeChars rest (' ' :: acc)
+    normalizeChars ('\r' :: rest) acc =
+      normalizeChars rest (' ' :: acc)
+    -- Handle multiple spaces (collapse to single space)
+    normalizeChars (' ' :: ' ' :: rest) acc =
+      normalizeChars (' ' :: rest) acc
+    -- Handle tabs (convert to space)
+    normalizeChars ('\t' :: rest) acc =
+      normalizeChars rest (' ' :: acc)
+    -- Regular characters
     normalizeChars (c :: rest) acc =
       normalizeChars rest (c :: acc)
 
@@ -818,30 +727,70 @@ runDebate topic participant1Model participant2Model judgeModel config = do
 
           -- Score the debate
           putStrLn "\n📊 Scoring debate..."
-          scoreResult <- scoreDebate session session.judge
-          case scoreResult of
+          -- Convert DebateSession to Debate and call the judgeDebate function from the Application layer
+          let debate = MkDebate session.topic session.participant1 session.participant2 session.judge InProgress
+                       (map (\turn => MkMessage turn.speaker turn.message turn.timestamp) session.turns)
+                       (Just session.currentSpeaker)
+          judgeResult <- Application.Judging.judgeDebate debate session.judge
+          case judgeResult of
             Left err => putStrLn ("❌ Scoring error: " ++ show err)
-            Right scores => do
+            Right (MkJudgeResult scores verbalAssessment) => do
               putStrLn "🏆 FINAL DEBATE RESULTS"
               putStrLn "======================="
               putStrLn ("📋 Topic: " ++ session.topic)
-              putStrLn ""
-              traverse_ (\score => putStrLn (show score ++ "\n")) scores
-              putStrLn ("🎯 Judged by: " ++ show session.judge)
-              declaration <- declareWinner session.judge session.topic scores
-              putStrLn declaration
-        else do
-          -- Check for warning
-          when (shouldShowTurnWarning session) $ do
-            putStrLn "⚠️  Debate approaching maximum length! Consider wrapping up."
-            putStrLn ""
+              -- Display the judge's full response, from which scores are parsed
+              putStrLn "\n📝 Judge's Full Response:"
+              putStrLn "--------------------------"
+              putStrLn verbalAssessment
+              putStrLn "--------------------------\n"
 
+              putStrLn "📊 Final Scores Summary:"
+              -- Display the scores parsed from the response above
+              traverse_ (\score => putStrLn (show score ++ "\n")) scores
+              putStrLn "======================="
+              putStrLn ("📋 Topic: " ++ session.topic)
+              putStrLn ""
+              putStrLn ("🎯 Judged by: " ++ show session.judge)
+
+              putStrLn "\n🎙️ Judge is making the winner announcement..."
+              -- Get the raw AI-generated winner announcement from the application layer
+              declarationResult <- Application.Judging.getApplicationLayerWinnerDeclaration debate session.judge session.topic scores
+
+              case declarationResult of
+                Left err => putStrLn ("❌ Winner declaration error: " ++ show err)
+                Right rawDeclaration => do
+                  -- Determine the header based on whether it's a tie
+                  let finalFormattedDeclaration = case scores of
+                        [s1, s2] =>
+                          let header = if s1.totalScore == s2.totalScore
+                                       then "\n🚨 IT'S A TIE! 🚨\n"
+                                       else "\n🚨 THE JUDGE HAS SPOKEN! 🚨\n"
+                          in header ++
+                             "═══════════════════════════════════════════════\n" ++
+                             rawDeclaration ++ "\n" ++
+                             "═══════════════════════════════════════════════\n"
+                        _ => "🏆 The debate concludes with honor to all participants!"
+
+                  putStrLn finalFormattedDeclaration
+        else do
           -- Generate prompt for current speaker
           let context = generateTurnContext session
           let speakerSide = if session.currentSpeaker == session.participant1.model
                               then session.participant1.side
                               else session.participant2.side
-          let prompt = generateDebatePrompt topic speakerSide context
+
+          -- Include warning in prompt if approaching max turns
+          let warningPrefix = if shouldShowTurnWarning session
+                             then "⚠️ IMPORTANT: This debate is approaching maximum length! Please consider wrapping up your argument in this turn.\n\n"
+                             else ""
+
+          let basePrompt = generateDebatePrompt topic speakerSide context
+          let prompt = warningPrefix ++ basePrompt
+
+          -- Also show warning to user
+          when (shouldShowTurnWarning session) $ do
+            putStrLn "⚠️  Debate approaching maximum length! Please consider wrapping up your argument!"
+            putStrLn ""
 
           putStrLn ("💭 " ++ show session.currentSpeaker ++ " is thinking...")
 
@@ -864,6 +813,7 @@ runDebate topic participant1Model participant2Model judgeModel config = do
                                            newSession.judge newSession.config newSession.turns
                                            newSession.currentSpeaker True)
                 else do
+                  putStrLn "\n🤔 Do you want to continue this debate for more rounds?"
                   continue <- gumConfirm "Continue debate?"
                   if continue
                     then debateLoop newSession
@@ -944,10 +894,11 @@ runCLI = do
                     Nothing => putStrLn "❌ Configuration cancelled. Exiting."
                     Just config => do
                       -- Final confirmation
-                      let summary = "🎭 **Debate:** " ++ topic ++ "\n" ++
+                      let warningPercent = cast {to=Int} (config.warningThreshold * 100)
+                          summary = "🎭 **Debate:** " ++ topic ++ "\n" ++
                                    "🤖 **Participants:** " ++ show p1 ++ " vs " ++ show p2 ++ "\n" ++
                                    "⚖️  **Judge:** " ++ show judge ++ "\n" ++
-                                   "⚙️  **Config:** " ++ show config.maxRounds ++ " rounds, " ++ show (config.warningThreshold * 100) ++ "% warning"
+                                   "⚙️  **Config:** " ++ show config.maxRounds ++ " rounds, " ++ show warningPercent ++ "% warning"
 
                       glowMarkdown summary
 

@@ -3,6 +3,7 @@ module Adapters.HTTP
 import System
 import System.File
 import System.File.Process
+import System.Clock
 import Data.String
 import Data.IORef
 
@@ -92,9 +93,13 @@ HTTPClient where
       0 => putStrLn ("🐛 DEBUG HTTP: Getting env var " ++ name)
       _ => pure ()
 
-    result <- system ("printf \"%s\" \"$" ++ name ++ "\" > /tmp/tensor_kombat_env.txt 2>/dev/null")
-    envContent <- readFile "/tmp/tensor_kombat_env.txt"
-    ignore $ system "rm -f /tmp/tensor_kombat_env.txt"
+    -- Use current time in nanoseconds for unique filename
+    time <- clockTime UTC
+    let uniqueId = show (nanoseconds time)
+    let envFile = "/tmp/tensor_kombat_env_" ++ uniqueId ++ ".txt"
+    result <- System.system ("printf \"%s\" \"$" ++ name ++ "\" > " ++ envFile ++ " 2>/dev/null")
+    envContent <- readFile envFile
+    ignore $ System.system ("rm -f " ++ envFile)
 
     case envContent of
       Right content => do

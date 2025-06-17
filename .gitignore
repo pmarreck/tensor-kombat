@@ -6,3 +6,20 @@ build/
 *.ttm
 *.so
 *.ss
+
+# Compiled binaries
+tensor-kombat
+tensor-kombat.exe
+
+# Temporary files
+*.tmp
+*.bak
+.DS_Store
+
+# IDE files
+.vscode/
+.idea/
+
+# Environment files
+.env
+.env.local

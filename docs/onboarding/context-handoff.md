@@ -6,7 +6,12 @@
 
 **MASSIVE IMPROVEMENT SESSION COMPLETED** - The system has been transformed from a basic prototype into a fully functional, production-ready AI debate platform with comprehensive bug fixes and major feature additions.
 
-**LATEST FIX: Gemini Model API Issue Fully Resolved** - Through comprehensive API testing, identified that `gemini-2.5-pro-preview-06-05` requires paid tier access even with paid API keys. Updated both GeminiPro and GeminiFlash to use `gemini-1.5-flash` which is verified working with user's paid API key. Added integration test utility `test_gemini_access.sh` for future model validation.
++**LATEST FIX: OpenRouter Integration & Gemini Model API Issue Fully Resolved**
+
+- Added full OpenRouter support, unlocking Gemini 2.5 Pro, Gemini 2.0 Flash, Claude 3.5, GPT-4o, and more via a unified API.
+- Gemini 2.5 Pro is now accessible through OpenRouter, bypassing Google's direct API quota/plan limitations.
+- Gemini 2.0 Flash Exp is the most reliable direct Google API model, but OpenRouter provides broader access and better pricing.
+- Added integration test utility `test_gemini_access.sh` for future model validation.
 
 ### Current Working State ✅ FULLY FUNCTIONAL
 
@@ -39,7 +44,8 @@
 #### Enhanced Model Selection System
 
 - **OpenAI Options**: ChatGPT 4o, 4.1, 4.5, o3, 4o Mini
-- **Gemini Options**: Pro (1.5 Flash) and Flash (1.5 Flash) - Both using verified working endpoint
+  +- **Gemini Options**: Pro (2.5 Pro via OpenRouter), 2.0 Flash Exp (direct or OpenRouter), 1.5 Flash (legacy)
+  +- **OpenRouter Options**: Gemini 2.5 Pro, Gemini 2.0 Flash, Claude 3.5, GPT-4o, and more (all via unified API)
 - **All Providers**: OpenAI, Anthropic, Google, xAI, Groq, Ollama fully supported
 - **Context Lengths**: Optimized for each model (up to 1M+ tokens for Gemini)
 - **Response Limits**: Enhanced token limits for quality debate responses
@@ -111,10 +117,10 @@
 
 #### Gemini API Model Access Resolution
 
-- **Problem**: HTTP 429 error with `gemini-2.5-pro-preview-06-05` (paid tier only, even with paid API)
-- **Solution**: Updated to use `gemini-1.5-flash` which is verified working with paid API keys
-- **Testing**: Added `test_gemini_access.sh` utility that validates actual model availability
-- **Impact**: Gemini models now work reliably for all users with valid API keys
+- **Problem**: HTTP 429 error with `gemini-2.5-pro-preview-06-05` (paid tier only, even with paid API); Google One/Gemini Advanced does NOT grant API access to 2.5 Pro.
+- **Solution**: Integrated OpenRouter, which provides Gemini 2.5 Pro and other models with reliable access and unified API.
+- **Testing**: Added `test_gemini_access.sh` utility that validates actual model availability; confirmed OpenRouter access with $10 credit.
+- **Impact**: Gemini 2.5 Pro and other premium models now work reliably via OpenRouter for all users with valid API keys.
 
 #### Shell Command Safety
 
@@ -211,8 +217,8 @@ KOMBAT_TEST_MODE=true ./build/exec/tensor-kombat
 2. **Use environment variables** - All configuration is externalized
 3. **Test with real API keys** - System designed for actual AI provider usage
 4. **Add new topics carefully** - Ensure proper shell escaping for special characters
-5. **Use test_gemini_access.sh** - Validate Gemini model availability before updating endpoints
-6. **Monitor API limits** - Gemini 1.5 Flash is reliable for most paid accounts
+   +5. **Use test_gemini_access.sh** - Validate Gemini model availability before updating endpoints
+   +6. **Monitor API limits** - Use OpenRouter for premium Gemini/Claude/GPT-4o access; fallback to direct 2.0 Flash Exp if needed
 
 ## Success Criteria - ALL MET ✅
 
@@ -235,10 +241,11 @@ Tensor-Kombat is a **fully functional AI debate platform** where different AI mo
 
 1. **OpenAI**: ChatGPT 4o, 4.1, 4.5, o3, 4o Mini
 2. **Anthropic**: Claude 3.5 Sonnet
-3. **Google**: Gemini 1.5 Flash (Pro), Gemini 1.5 Flash (Flash) - both use same reliable endpoint
-4. **xAI**: Grok 3
-5. **Groq**: Llama 3.1 70B
-6. **Ollama**: Local models (llama3.3:70b default)
+3. **Google**: Gemini 2.5 Pro (via OpenRouter), Gemini 2.0 Flash Exp (direct or OpenRouter), Gemini 1.5 Flash (legacy)
+4. **OpenRouter**: Gemini 2.5 Pro, Gemini 2.0 Flash, Claude 3.5, GPT-4o, and more
+5. **xAI**: Grok 3
+6. **Groq**: Llama 3.1 70B
+7. **Ollama**: Local models (llama3.3:70b default)
 
 ### Critical Working Features ✅
 
@@ -253,14 +260,20 @@ Tensor-Kombat is a **fully functional AI debate platform** where different AI mo
 
 This session transformed the project from a basic prototype into a **fully functional, production-ready AI debate platform**. All critical bugs were fixed, major features were added, and the system now provides an engaging, fair, and entertaining debate experience.
 
-**Latest Fix**: Completely resolved Gemini API access through real API testing. Created `test_gemini_access.sh` utility that tested all available models with user's paid API key. Found that even `gemini-2.5-pro-preview-06-05` requires special paid tier access. Updated both GeminiPro and GeminiFlash to use `gemini-1.5-flash` which is verified working. System now has robust Gemini integration with comprehensive API validation testing.
+- **Latest Fix**:
+  - Added OpenRouter integration, unlocking Gemini 2.5 Pro, Gemini 2.0 Flash, Claude 3.5, GPT-4o, and more via a single API key.
+  - Confirmed Gemini 2.5 Pro is accessible and working via OpenRouter (not via direct Google API, even with paid/Advanced/Google One).
+  - Gemini 2.0 Flash Exp is the most reliable direct Google API model, but OpenRouter is now the preferred route for premium models.
+  - Added `test_gemini_access.sh` utility for future model validation.
+  - All tests passing, production ready.
 
 ### If Something Breaks
 
 1. **Run tests**: `nix develop --command make test` - should all pass
 2. **Check debug output**: `export DEBUG=true` for detailed logging
-3. **Verify API keys**: Ensure environment variables are set correctly
+3. **Verify API keys**: Ensure environment variables are set correctly (`OPENROUTER_API_KEY` for OpenRouter, others as needed)
 4. **Test locally**: Use Ollama for guaranteed working local models
 5. **Check shell escaping**: Ensure special characters in topics are handled
+6. **Use test_gemini_access.sh**: To validate Gemini model availability for your API key/provider
 
 The system is **stable, tested, and ready for production use**! 🎉⚔️🏆

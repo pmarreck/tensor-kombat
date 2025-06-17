@@ -2,21 +2,29 @@ package tensor-kombat-test
 
 version = 0.1.0
 
+-- This tells the package manager that the main source for this package is in the "test" directory.
 sourcedir = "test"
+
+-- This is the crucial fix.
+-- It tells the compiler to add the "src" directory to the import path for all modules in this package.
 opts = "-i src"
+
+-- Global dependencies for all modules in this package.
+depends = base >= 0.7.0,
+          contrib
+
+-- Define the executable that will be built from this package.
 executable = "test-runner"
-main = TestRunner
+  -- The main entry point for the executable.
+  main = TestRunner
 
-depends = base >= 0.7.0
-        , contrib
-
-modules = TestRunner
-        , Core.TypesTest
-        , Adapters.AITest
-        , Ports.CLITest
-        , Integration.DebateTest
-        , Integration.TimeoutTest
-        , Integration.LLMConnectivityTest
-
--- Build options
-opts = ""
+-- List of all modules to be included in the package build.
+-- This includes the test runner itself and all the individual test suites.
+modules = TestRunner,
+          Core.TypesTest,
+          Adapters.AITest,
+          Ports.CLITest,
+          Ports.TUITest,
+          Integration.DebateTest,
+          Integration.TimeoutTest,
+          Integration.LLMConnectivityTest

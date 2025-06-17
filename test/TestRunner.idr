@@ -2,7 +2,9 @@ module TestRunner
 
 import Core.TypesTest
 import Adapters.AITest
+import Application.JudgingTest
 import Ports.CLITest
+import Ports.TUITest
 import Integration.DebateTest
 import Integration.TimeoutTest
 import Integration.LLMConnectivityTest
@@ -18,7 +20,11 @@ main = do
   putStrLn ""
   runAITests
   putStrLn ""
+  runJudgingTests
+  putStrLn ""
   runCLITests
+  putStrLn ""
+  runTUITests
   putStrLn ""
   runIntegrationTests
   putStrLn ""

@@ -13,9 +13,19 @@
       in
       {
         devShells.default = pkgs.mkShell {
+          nativeBuildInputs = with pkgs; [
+            # Build tools (compile-time)
+            gcc
+            pkg-config
+          ];
+          
           buildInputs = with pkgs; [
             # Core language and build tools
             idris2
+
+            # C compilation dependencies for RefC backend
+            gmp.dev  # Headers for GMP
+            gmp      # Runtime library
 
             # CLI and utilities
             bash
@@ -39,6 +49,7 @@
             echo "Tensor-Kombat development environment loaded!"
             echo "Available tools:"
             echo "  - Idris 2: $(idris2 --version)"
+            echo "  - GCC and GMP for RefC backend compilation"
             echo "  - Glow for markdown rendering"
             echo "  - Gum for interactive TUI"
             echo "  - jj for version control"
@@ -62,7 +73,16 @@
 
           src = ./.;
 
-          buildInputs = [ pkgs.idris2 ];
+          nativeBuildInputs = with pkgs; [ 
+            idris2 
+            gcc 
+            pkg-config
+          ];
+          
+          buildInputs = with pkgs; [ 
+            gmp.dev 
+            gmp 
+          ];
 
           buildPhase = ''
             idris2 --build tensor-kombat.ipkg

@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make:*)",
+      "Bash(rg:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(otool:*)",
+      "Bash(gcc:*)",
+      "Bash(KOMBAT_TEST_MODE=true timeout 10s ./build/exec/tensor-kombat 2 >& 1)",
+      "Bash(gh repo create:*)",
+      "Bash(jj git remote:*)",
+      "Bash(jj status:*)",
+      "Bash(jj commit:*)",
+      "Bash(jj git push:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh auth:*)"
+    ],
+    "deny": []
+  }
+}
