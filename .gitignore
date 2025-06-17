@@ -1,1 +1,8 @@
 assets/tensor_kombat.png
+
+# Build artifacts
+build/
+*.ttc
+*.ttm
+*.so
+*.ss
