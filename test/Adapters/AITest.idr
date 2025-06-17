@@ -113,8 +113,8 @@ testAPIEndpoints = do
   assertEqual "ChatGPT4o endpoint" "https://api.openai.com/v1/chat/completions" (getAPIEndpoint ChatGPT4o)
   assertEqual "ChatGPT4_1 endpoint" "https://api.openai.com/v1/chat/completions" (getAPIEndpoint ChatGPT4_1)
   assertEqual "Claude4 endpoint" "https://api.anthropic.com/v1/messages" (getAPIEndpoint Claude4)
-  assertEqual "GeminiPro endpoint" "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro-preview-06-05:generateContent" (getAPIEndpoint GeminiPro)
-  assertEqual "GeminiFlash endpoint" "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent" (getAPIEndpoint GeminiFlash)
+  assertEqual "GeminiPro endpoint" "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent" (getAPIEndpoint GeminiPro)
+  assertEqual "GeminiFlash endpoint" "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent" (getAPIEndpoint GeminiFlash)
 
 -- Test API key variable configuration
 export
