@@ -14,6 +14,10 @@ data AIModel : Type where
   Grok : AIModel
   GroqLlama : AIModel
   OllamaLocal : AIModel
+  OpenRouterGemini25Pro : AIModel
+  OpenRouterGemini20Flash : AIModel
+  OpenRouterClaude35 : AIModel
+  OpenRouterGPT4o : AIModel
 
 public export
 Eq AIModel where
@@ -28,6 +32,10 @@ Eq AIModel where
   Grok == Grok = True
   GroqLlama == GroqLlama = True
   OllamaLocal == OllamaLocal = True
+  OpenRouterGemini25Pro == OpenRouterGemini25Pro = True
+  OpenRouterGemini20Flash == OpenRouterGemini20Flash = True
+  OpenRouterClaude35 == OpenRouterClaude35 = True
+  OpenRouterGPT4o == OpenRouterGPT4o = True
   _ == _ = False
 
 public export
@@ -37,12 +45,16 @@ Show AIModel where
   show ChatGPT4_5 = "ChatGPT 4.5"
   show ChatGPTo3 = "ChatGPT o3"
   show ChatGPTo4Mini = "ChatGPT 4o Mini"
-  show Claude4 = "Claude 4"
   show GeminiPro = "Gemini Pro"
   show GeminiFlash = "Gemini Flash"
+  show Claude4 = "Claude 4"
   show Grok = "Grok"
   show GroqLlama = "Groq Llama"
   show OllamaLocal = "Ollama Local"
+  show OpenRouterGemini25Pro = "OpenRouter Gemini 2.5 Pro"
+  show OpenRouterGemini20Flash = "OpenRouter Gemini 2.0 Flash"
+  show OpenRouterClaude35 = "OpenRouter Claude 3.5"
+  show OpenRouterGPT4o = "OpenRouter GPT-4o"
 
 -- | Which side of the debate an AI is arguing
 public export

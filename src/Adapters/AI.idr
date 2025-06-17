@@ -61,6 +61,10 @@ getAPIEndpoint Claude4 = "https://api.anthropic.com/v1/messages"
 getAPIEndpoint Grok = "https://api.x.ai/v1/chat/completions"
 getAPIEndpoint GroqLlama = "https://api.groq.com/openai/v1/chat/completions"
 getAPIEndpoint OllamaLocal = "http://localhost:11434/api/chat"
+getAPIEndpoint OpenRouterGemini25Pro = "https://openrouter.ai/api/v1/chat/completions"
+getAPIEndpoint OpenRouterGemini20Flash = "https://openrouter.ai/api/v1/chat/completions"
+getAPIEndpoint OpenRouterClaude35 = "https://openrouter.ai/api/v1/chat/completions"
+getAPIEndpoint OpenRouterGPT4o = "https://openrouter.ai/api/v1/chat/completions"
 
 -- Get environment variable name for API key
 public export
@@ -76,6 +80,10 @@ getAPIKeyVar Claude4 = "ANTHROPIC_API_KEY"
 getAPIKeyVar Grok = "GROK_API_KEY"
 getAPIKeyVar GroqLlama = "GROQ_API_KEY"
 getAPIKeyVar OllamaLocal = "OLLAMA_API_KEY"
+getAPIKeyVar OpenRouterGemini25Pro = "OPENROUTER_API_KEY"
+getAPIKeyVar OpenRouterGemini20Flash = "OPENROUTER_API_KEY"
+getAPIKeyVar OpenRouterClaude35 = "OPENROUTER_API_KEY"
+getAPIKeyVar OpenRouterGPT4o = "OPENROUTER_API_KEY"
 
 -- Get environment variable name for default model selection
 public export
@@ -91,6 +99,10 @@ getDefaultModelVar Claude4 = "ANTHROPIC_DEFAULT_MODEL"
 getDefaultModelVar Grok = "GROK_DEFAULT_MODEL"
 getDefaultModelVar GroqLlama = "GROQ_DEFAULT_MODEL"
 getDefaultModelVar OllamaLocal = "OLLAMA_DEFAULT_MODEL"
+getDefaultModelVar OpenRouterGemini25Pro = "OPENROUTER_DEFAULT_MODEL"
+getDefaultModelVar OpenRouterGemini20Flash = "OPENROUTER_DEFAULT_MODEL"
+getDefaultModelVar OpenRouterClaude35 = "OPENROUTER_DEFAULT_MODEL"
+getDefaultModelVar OpenRouterGPT4o = "OPENROUTER_DEFAULT_MODEL"
 
 -- Get default model name (for Ollama, this could be "llama3.3:70b", "mistral", etc.)
 public export
@@ -106,6 +118,10 @@ getDefaultModelName Claude4 = "claude-3-5-sonnet-20241022"
 getDefaultModelName Grok = "grok-3"
 getDefaultModelName GroqLlama = "llama-3.1-70b-versatile"
 getDefaultModelName OllamaLocal = "llama3.3:70b"
+getDefaultModelName OpenRouterGemini25Pro = "google/gemini-2.5-pro-preview"
+getDefaultModelName OpenRouterGemini20Flash = "google/gemini-2.0-flash-exp:free"
+getDefaultModelName OpenRouterClaude35 = "anthropic/claude-3.5-sonnet"
+getDefaultModelName OpenRouterGPT4o = "openai/gpt-4o"
 
 -- Get environment variable name for context length
 public export
@@ -121,6 +137,10 @@ getContextLengthVar Claude4 = "ANTHROPIC_CONTEXT_LENGTH"
 getContextLengthVar Grok = "GROK_CONTEXT_LENGTH"
 getContextLengthVar GroqLlama = "GROQ_CONTEXT_LENGTH"
 getContextLengthVar OllamaLocal = "OLLAMA_CONTEXT_LENGTH"
+getContextLengthVar OpenRouterGemini25Pro = "OPENROUTER_CONTEXT_LENGTH"
+getContextLengthVar OpenRouterGemini20Flash = "OPENROUTER_CONTEXT_LENGTH"
+getContextLengthVar OpenRouterClaude35 = "OPENROUTER_CONTEXT_LENGTH"
+getContextLengthVar OpenRouterGPT4o = "OPENROUTER_CONTEXT_LENGTH"
 
 -- Get default context length for each provider
 public export
@@ -136,6 +156,10 @@ getDefaultContextLength Claude4 = 200000
 getDefaultContextLength Grok = 8192
 getDefaultContextLength GroqLlama = 8192
 getDefaultContextLength OllamaLocal = 16384
+getDefaultContextLength OpenRouterGemini25Pro = 1000000
+getDefaultContextLength OpenRouterGemini20Flash = 1048576
+getDefaultContextLength OpenRouterClaude35 = 200000
+getDefaultContextLength OpenRouterGPT4o = 128000
 
 -- Get environment variable name for max response tokens
 public export
@@ -151,6 +175,10 @@ getMaxResponseTokensVar Claude4 = "ANTHROPIC_MAX_TOKENS"
 getMaxResponseTokensVar Grok = "GROK_MAX_TOKENS"
 getMaxResponseTokensVar GroqLlama = "GROQ_MAX_TOKENS"
 getMaxResponseTokensVar OllamaLocal = "OLLAMA_MAX_TOKENS"
+getMaxResponseTokensVar OpenRouterGemini25Pro = "OPENROUTER_MAX_TOKENS"
+getMaxResponseTokensVar OpenRouterGemini20Flash = "OPENROUTER_MAX_TOKENS"
+getMaxResponseTokensVar OpenRouterClaude35 = "OPENROUTER_MAX_TOKENS"
+getMaxResponseTokensVar OpenRouterGPT4o = "OPENROUTER_MAX_TOKENS"
 
 -- Get default max response tokens for each provider
 public export
@@ -166,6 +194,10 @@ getDefaultMaxResponseTokens Claude4 = 3000
 getDefaultMaxResponseTokens Grok = 2000
 getDefaultMaxResponseTokens GroqLlama = 2000
 getDefaultMaxResponseTokens OllamaLocal = 2000
+getDefaultMaxResponseTokens OpenRouterGemini25Pro = 4000
+getDefaultMaxResponseTokens OpenRouterGemini20Flash = 4000
+getDefaultMaxResponseTokens OpenRouterClaude35 = 4000
+getDefaultMaxResponseTokens OpenRouterGPT4o = 4000
 
 -- Parse a positive integer from string
 parsePositive : String -> Maybe Nat
@@ -214,6 +246,10 @@ createHeaders Claude4 apiKey = [("x-api-key", apiKey), ("anthropic-version", "20
 createHeaders Grok apiKey = [("Authorization", "Bearer " ++ apiKey), ("Content-Type", "application/json")]
 createHeaders GroqLlama apiKey = [("Authorization", "Bearer " ++ apiKey), ("Content-Type", "application/json")]
 createHeaders OllamaLocal apiKey = [("Content-Type", "application/json")]
+createHeaders OpenRouterGemini25Pro apiKey = [("Authorization", "Bearer " ++ apiKey), ("Content-Type", "application/json")]
+createHeaders OpenRouterGemini20Flash apiKey = [("Authorization", "Bearer " ++ apiKey), ("Content-Type", "application/json")]
+createHeaders OpenRouterClaude35 apiKey = [("Authorization", "Bearer " ++ apiKey), ("Content-Type", "application/json")]
+createHeaders OpenRouterGPT4o apiKey = [("Authorization", "Bearer " ++ apiKey), ("Content-Type", "application/json")]
 
 -- Simple JSON escaping
 escapeJSON : String -> String
@@ -251,6 +287,14 @@ createRequestBody GroqLlama prompt =
   "{\"model\":\"llama-3.1-70b-versatile\",\"messages\":[{\"role\":\"user\",\"content\":\"" ++ escapeJSON prompt ++ "\"}],\"max_tokens\":2000}"
 createRequestBody OllamaLocal prompt =
   "{\"model\":\"llama3.3:70b\",\"messages\":[{\"role\":\"user\",\"content\":\"" ++ escapeJSON prompt ++ "\"}],\"stream\":false}"
+createRequestBody OpenRouterGemini25Pro prompt =
+  "{\"model\":\"google/gemini-2.5-pro-preview\",\"messages\":[{\"role\":\"user\",\"content\":\"" ++ escapeJSON prompt ++ "\"}],\"max_tokens\":4000}"
+createRequestBody OpenRouterGemini20Flash prompt =
+  "{\"model\":\"google/gemini-2.0-flash-exp:free\",\"messages\":[{\"role\":\"user\",\"content\":\"" ++ escapeJSON prompt ++ "\"}],\"max_tokens\":4000}"
+createRequestBody OpenRouterClaude35 prompt =
+  "{\"model\":\"anthropic/claude-3.5-sonnet\",\"messages\":[{\"role\":\"user\",\"content\":\"" ++ escapeJSON prompt ++ "\"}],\"max_tokens\":4000}"
+createRequestBody OpenRouterGPT4o prompt =
+  "{\"model\":\"openai/gpt-4o\",\"messages\":[{\"role\":\"user\",\"content\":\"" ++ escapeJSON prompt ++ "\"}],\"max_tokens\":4000}"
 
 -- Create request body with configurable model name, context length, and max tokens
 public export
@@ -277,6 +321,14 @@ createRequestBodyWithConfig GroqLlama prompt modelName contextLength maxTokens =
   "{\"model\":\"" ++ modelName ++ "\",\"messages\":[{\"role\":\"user\",\"content\":\"" ++ escapeJSON prompt ++ "\"}],\"max_tokens\":" ++ show maxTokens ++ "}"
 createRequestBodyWithConfig OllamaLocal prompt modelName contextLength maxTokens =
   "{\"model\":\"" ++ modelName ++ "\",\"messages\":[{\"role\":\"user\",\"content\":\"" ++ escapeJSON prompt ++ "\"}],\"stream\":false,\"options\":{\"num_predict\":" ++ show maxTokens ++ "}}"
+createRequestBodyWithConfig OpenRouterGemini25Pro prompt modelName contextLength maxTokens =
+  "{\"model\":\"" ++ modelName ++ "\",\"messages\":[{\"role\":\"user\",\"content\":\"" ++ escapeJSON prompt ++ "\"}],\"max_tokens\":" ++ show maxTokens ++ "}"
+createRequestBodyWithConfig OpenRouterGemini20Flash prompt modelName contextLength maxTokens =
+  "{\"model\":\"" ++ modelName ++ "\",\"messages\":[{\"role\":\"user\",\"content\":\"" ++ escapeJSON prompt ++ "\"}],\"max_tokens\":" ++ show maxTokens ++ "}"
+createRequestBodyWithConfig OpenRouterClaude35 prompt modelName contextLength maxTokens =
+  "{\"model\":\"" ++ modelName ++ "\",\"messages\":[{\"role\":\"user\",\"content\":\"" ++ escapeJSON prompt ++ "\"}],\"max_tokens\":" ++ show maxTokens ++ "}"
+createRequestBodyWithConfig OpenRouterGPT4o prompt modelName contextLength maxTokens =
+  "{\"model\":\"" ++ modelName ++ "\",\"messages\":[{\"role\":\"user\",\"content\":\"" ++ escapeJSON prompt ++ "\"}],\"max_tokens\":" ++ show maxTokens ++ "}"
 
 -- Get model name from environment variable or default
 public export
@@ -347,6 +399,26 @@ extractContent OllamaLocal response =
   case findJSONString "\"content\":" response of
     Just content => Right content
     Nothing => Left "Could not extract content from Ollama response"
+extractContent OpenRouterGemini25Pro response =
+  -- Look for "content": pattern in OpenRouter response (OpenAI-compatible)
+  case findJSONString "\"content\":" response of
+    Just content => Right content
+    Nothing => Left "Could not extract content from OpenRouter response"
+extractContent OpenRouterGemini20Flash response =
+  -- Look for "content": pattern in OpenRouter response (OpenAI-compatible)
+  case findJSONString "\"content\":" response of
+    Just content => Right content
+    Nothing => Left "Could not extract content from OpenRouter response"
+extractContent OpenRouterClaude35 response =
+  -- Look for "content": pattern in OpenRouter response (OpenAI-compatible)
+  case findJSONString "\"content\":" response of
+    Just content => Right content
+    Nothing => Left "Could not extract content from OpenRouter response"
+extractContent OpenRouterGPT4o response =
+  -- Look for "content": pattern in OpenRouter response (OpenAI-compatible)
+  case findJSONString "\"content\":" response of
+    Just content => Right content
+    Nothing => Left "Could not extract content from OpenRouter response"
 
 -- Parse API response
 public export

@@ -304,6 +304,10 @@ nameToModel "Gemini Flash" = Just GeminiFlash
 nameToModel "Grok" = Just Grok
 nameToModel "Groq Llama" = Just GroqLlama
 nameToModel "Ollama Local" = Just OllamaLocal
+nameToModel "OpenRouter Gemini 2.5 Pro" = Just OpenRouterGemini25Pro
+nameToModel "OpenRouter Gemini 2.0 Flash" = Just OpenRouterGemini20Flash
+nameToModel "OpenRouter Claude 3.5" = Just OpenRouterClaude35
+nameToModel "OpenRouter GPT-4o" = Just OpenRouterGPT4o
 nameToModel _ = Nothing
 
 public export
@@ -327,7 +331,11 @@ getModelOptions = [
   "Gemini Flash",
   "Grok",
   "Groq Llama",
-  "Ollama Local"
+  "Ollama Local",
+  "OpenRouter Gemini 2.5 Pro",
+  "OpenRouter Gemini 2.0 Flash",
+  "OpenRouter Claude 3.5",
+  "OpenRouter GPT-4o"
 ]
 
 -- State management for default selections in testing
