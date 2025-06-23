@@ -59,10 +59,20 @@ build-optimized:
 # Alias for build-c (clearer name)
 build-static: build-c
 
-# Run tests
+# Run tests (main test suite only)
 test: build
 	idris2 --build test.ipkg
 	KOMBAT_TEST_MODE=true ./build/exec/test-runner
+
+# Test API key verification (requires valid API keys)
+test-api-keys:
+	@echo "🔑 Testing API Key Verification..."
+	idris2 --build api-key-test.ipkg
+	./build/exec/api-key-test
+
+# Run all tests (main suite + API key verification)
+test-all: test test-api-keys
+	@echo "🎉 All tests completed!"
 
 
 
@@ -110,7 +120,9 @@ help:
 	@echo "  build-c        - Build with RefC backend (generates C code, static binary)"
 	@echo "  build-static   - Alias for build-c"
 	@echo "  build-optimized- Build RefC with aggressive optimizations & dead code elimination"
-	@echo "  test           - Run all tests"
+	@echo "  test           - Run main test suite"
+	@echo "  test-api-keys  - Test API key verification (requires valid keys)"
+	@echo "  test-all       - Run all tests (main suite + API verification)"
 	@echo "  clean          - Clean build artifacts"
 	@echo "  run            - Run the main application (Chez version)"
 	@echo "  run-c          - Run the C-compiled version"

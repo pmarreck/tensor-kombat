@@ -1,0 +1,16 @@
+package api-key-test
+
+authors = "Peter Marreck, Claude"
+version = 0.1.0
+
+sourcedir = "test"
+opts = "-i src"
+
+depends = base >= 0.7.0,
+          contrib
+
+executable = "api-key-test"
+main = APIKeyTestRunner
+
+modules = APIKeyTestRunner,
+          Integration.APIKeyVerificationTest

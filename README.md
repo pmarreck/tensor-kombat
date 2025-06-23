@@ -99,14 +99,14 @@ tensor-kombat/
 # Build the project
 make build
 
-# Run comprehensive test suite (47+ assertions)
+# Run main test suite (47+ assertions)
 make test
 
-# Test HTTP client without using AI tokens
-idris2 SimpleAPITest.idr -o simple-api-test && ./build/exec/simple-api-test
+# Test API key verification (requires valid API keys)
+make test-api-keys
 
-# Test CLI functions independently
-idris2 CLITest.idr -o cli-test && ./build/exec/cli-test
+# Run all tests (main suite + API verification)
+make test-all
 
 # Clean build artifacts
 make clean
@@ -121,6 +121,22 @@ This project was built entirely using **TDD methodology**:
 - ✅ **Refactor**: Clean up and improve
 
 Every feature has comprehensive test coverage with both unit and integration tests.
+
+### API Key Verification
+
+Test your API keys without running full debates:
+
+```bash
+# Test all configured API keys
+make test-api-keys
+```
+
+This integration test:
+- 🔍 **Detects** all configured API keys in environment variables
+- 🧪 **Tests** each key with minimal requests (single "Hi" prompt)
+- 📊 **Reports** which keys are working vs failing
+- 💡 **Provides** troubleshooting guidance for failed keys
+- 🎯 **Minimizes** token usage (only ~1-2 tokens per test)
 
 ## 🤖 Supported AI Models
 
