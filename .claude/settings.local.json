@@ -16,7 +16,10 @@
       "Bash(gh repo view:*)",
       "Bash(gh auth:*)",
       "WebFetch(domain:console.groq.com)",
-      "WebFetch(domain:groq.com)"
+      "WebFetch(domain:groq.com)",
+      "Bash(jj log:*)",
+      "Bash(jj describe:*)",
+      "Bash(jj bookmark set:*)"
     ],
     "deny": []
   }
