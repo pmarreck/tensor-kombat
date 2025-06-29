@@ -116,7 +116,7 @@ getDefaultModelName GeminiPro = "gemini-2.0-flash-exp"
 getDefaultModelName GeminiFlash = "gemini-2.0-flash-exp"
 getDefaultModelName Claude4 = "claude-3-5-sonnet-20241022"
 getDefaultModelName Grok = "grok-3"
-getDefaultModelName GroqLlama = "llama-3.1-70b-versatile"
+getDefaultModelName GroqLlama = "llama-3.3-70b-versatile"
 getDefaultModelName OllamaLocal = "llama3.3:70b"
 getDefaultModelName OpenRouterGemini25Pro = "google/gemini-2.5-pro-preview"
 getDefaultModelName OpenRouterGemini20Flash = "google/gemini-2.0-flash-exp:free"
@@ -284,7 +284,7 @@ createRequestBody Claude4 prompt =
 createRequestBody Grok prompt =
   "{\"model\":\"grok-3\",\"messages\":[{\"role\":\"user\",\"content\":\"" ++ escapeJSON prompt ++ "\"}],\"max_tokens\":2000}"
 createRequestBody GroqLlama prompt =
-  "{\"model\":\"llama-3.1-70b-versatile\",\"messages\":[{\"role\":\"user\",\"content\":\"" ++ escapeJSON prompt ++ "\"}],\"max_tokens\":2000}"
+  "{\"model\":\"llama-3.3-70b-versatile\",\"messages\":[{\"role\":\"user\",\"content\":\"" ++ escapeJSON prompt ++ "\"}],\"max_tokens\":2000}"
 createRequestBody OllamaLocal prompt =
   "{\"model\":\"llama3.3:70b\",\"messages\":[{\"role\":\"user\",\"content\":\"" ++ escapeJSON prompt ++ "\"}],\"stream\":false}"
 createRequestBody OpenRouterGemini25Pro prompt =

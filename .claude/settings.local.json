@@ -14,7 +14,9 @@
       "Bash(jj commit:*)",
       "Bash(jj git push:*)",
       "Bash(gh repo view:*)",
-      "Bash(gh auth:*)"
+      "Bash(gh auth:*)",
+      "WebFetch(domain:console.groq.com)",
+      "WebFetch(domain:groq.com)"
     ],
     "deny": []
   }
